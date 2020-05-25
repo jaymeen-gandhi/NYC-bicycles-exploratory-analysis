@@ -1,0 +1,160 @@
+---
+title: "New York Bike Sharing Dataset"
+author: "Jaymeen Gandhi"
+date: "11/15/2019"
+output:
+  word_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+```{r}
+#Our project is based on the dataset of the new york bikes, this business has gained a lot of popularity in past few years as it decreases the traffic and is environment friendly.
+```
+
+
+```{r}
+require(tidyverse)
+
+require(dplyr)
+
+require(tm)
+
+bikes= read.csv("D:/Into data mining, visulization(Prof.yegin)/nyc/nyc.csv")
+bikes %>% head(10)
+```
+
+```{r}
+#The data used is New york bike sharing, sourced from Kaggle consisting of 735502 rows of information containing of various attributes of  collected daily from 2015 through 2017. Our dataset comprises of 17 variables out of which we will be focusing on a few important variables, namely time duration, age and user type.The variables are explained below:
+
+#Trip.Duration= The entire trip duration is given in seconds.
+#Date= The date when the cycle was issued for transportation.
+#Start.Time= The Time at which the journey began.
+#Stop.Time= The time at which the journey finished.
+#Start.Station.ID=The Station at which the journey began.
+#Start.Station.Name= The name of the station.
+#Start.Station.Latitude=The co-ordinates of the station where the journey started.
+#Start.Station.Longitude=The co-ordinates of the station where the journey started.
+#End.Station.ID=The Station at which the journey ended.
+#End.Station.Name= The name of the station where the journey ended.
+#End.Station.Latitude=The co-ordinates of the station where the journey ended.
+#End.Station.Longitude=The co-ordinates of the station where the journey ended.
+#Bike.ID=The unqiue identifier that can be used to identify the bike.
+#User.Type=The type of user can beidentified using this variable.
+#Birth.Year= The user's age can be determined through this variable.
+#Trip_Duration_in_min=The duration is given in minutes.
+```
+
+
+```{r}
+##install.packages("tm")
+#view(bikes)
+```
+
+
+
+```{r}
+##Lets create a new variable age 
+bikes2=bikes %>%mutate(age = 2019 - Birth.Year)
+```
+
+
+
+
+$$
+Data Cleaning
+$$
+
+
+```{r}
+summary(bikes2)
+```
+
+```{r}
+#as per the summary we can observe that there are some outliers present in the data, but there are no missing values and hence we have to eliminate the outliers to make sure that it does not affect the prediction.
+
+hist(bikes2$Trip_Duration_in_min)
+
+```
+$$Descriptive Statistics:$$
+#On reviewing the data, we find that the least usage of citybike is 1 min on 10/01/2015 to 10/05/2015 andm highest usage of citybike is 337670 on 05/17/2016. The total usage of citybike that have been mined so far is 11452258 as of the last record of the dataset which is 03/31/2017.A summary of the key statistics of the data is given below:
+
+```{r}
+summary(bikes)
+```
+
+#top 10 data showing least usage of citybike
+```{r}
+bikes%>%group_by(`Start.Time`)%>%arrange(Trip_Duration_in_min)%>%head(10)
+```
+#top 10 data showing highest usage of citybike
+```{r}
+bikes%>%group_by(`Start.Time`)%>%arrange(desc(Trip_Duration_in_min))%>%head(10)
+```
+#total usage of citybikes in minutes from 10/1/2015 to 03/31/2017
+```{r}
+sum(bikes$Trip_Duration_in_min)
+```
+
+$$
+Exploratory   Analysis
+$$
+
+
+##How does the age affect the trip duration?
+```{r}
+bike6=bikes2%>%group_by(age)%>% summarise(sum(Trip_Duration_in_min))
+colnames(bike6) <- c("age","Duration")
+bike6 %>% arrange(desc(Duration)) %>% head(10)
+plot(bike6$age,bike6$Duration)
+##This will allow the company to target the customers according to the age groups.
+```
+
+
+##Where are more parking station required?
+```{r}
+
+bike2_test<-bikes2%>%group_by(`Start.Station.Name`)%>%count('Start Station Name') %>% arrange(desc(n))%>% head(10)
+bike2_test<-bike2_test[,-2]
+bike2_test
+
+bikes2_t=bikes2%>%group_by(`End.Station.Name`)%>%count('End Station Name') %>% arrange(desc(n))%>% head(10)
+bikes2_t<-bikes2_t[,-2]
+bikes2_t
+##So we can interpret that Grove Street and Exchange Place are the busiest places for the cycles.So we need to install more bike parking station in these two places.
+```
+
+
+##Which Gender has more cycle usage?
+```{r}
+bikes%>%filter(Gender=='1')%>%summarise(mean_male_duration=mean(Trip_Duration_in_min))
+bikes%>%filter(Gender=='2')%>%summarise(mean_female_duration=mean(Trip_Duration_in_min))
+hist(bikes$Gender)
+## Here 1 represents the male population and 2 represents the female population. So we can interpret that the bike company should target female consumers more than the male consumers.
+  
+```
+
+
+##Which year had the most cycle usage?
+```{r}
+##Graphs from tableau.
+```
+
+
+##What are the chances that the suscriber will turn up into a customer?
+```{r}
+bikes %>% filter(`User.Type`=='Subscriber')%>%summarise(mean(Trip_Duration_in_min))
+bikes %>% filter(`User.Type`=='Customer')%>%summarise(mean(Trip_Duration_in_min))
+
+##So we can interpret that a suscriber who will travel more than 12 mins in a particular period will turn up into a customer.
+```
+```{r}
+# This report helps to understand the dataset how various demographics and geographic locations affect the usage of cycles throughout the year. Establishing various types of relationships between attributes. At the end achiving the scope about which type of customers should be targetted by the company.
+```
+
+
